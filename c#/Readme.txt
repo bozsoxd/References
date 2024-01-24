@@ -1,0 +1,1 @@
+Ezen projektek a C# alapjainak magabiztos ismereteit hivatottak bemutatni.

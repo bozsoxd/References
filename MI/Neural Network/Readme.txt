@@ -1,0 +1,1 @@
+Ez egy egyszerű neurális háló, amely tanulás után predikálni tudja egy ingatlan megvásárlásának valószínűségét.

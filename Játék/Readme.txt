@@ -1,0 +1,1 @@
+Ez egy rengeteg tervezést és csapatmunkát igénylő projekt munka, melynek a grafikus végkimenetele tekinthető itt meg.

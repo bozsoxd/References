@@ -1,0 +1,1 @@
+Ez egy kezdetleges c++ projekt, amely elsődlegesen az oo elvek alapjaira irányul és a megfelelő memóriakezelésre. Valamint a stabil c++ kódolási alapok is megjelennek benne.

@@ -1,0 +1,1 @@
+Ez egy minimax algoritmus, amelynek célja a Connect4 játék megnyerése.

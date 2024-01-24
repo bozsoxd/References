@@ -1,0 +1,1 @@
+Ez egy játék megtervezése és leírása különböző UML diagrammokkal professzionális szinten. Kódot nem tartalmaz. A feladata, hogy más szoftverfejlesztők számára is érthető leírás készüljön. 
