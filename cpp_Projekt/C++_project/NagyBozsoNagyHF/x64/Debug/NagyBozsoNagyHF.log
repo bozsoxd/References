@@ -1,0 +1,10 @@
+﻿  Csapatok.cpp
+  memtrace.cpp
+C:\Users\Dell\Documents\!!!\BME\PROG2\NagyHF\NagyBozsoNagyHF\NagyBozsoNagyHF\memtrace.cpp(399,50): warning C4267: '+=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Dell\Documents\!!!\BME\PROG2\NagyHF\NagyBozsoNagyHF\NagyBozsoNagyHF\memtrace.cpp(400,35): warning C4267: '+=': conversion from 'size_t' to 'int', possible loss of data
+  NagyBozsoNagyHF.cpp
+  string5.cpp
+C:\Users\Dell\Documents\!!!\BME\PROG2\NagyHF\NagyBozsoNagyHF\NagyBozsoNagyHF\string5.cpp(2,1): warning C4005: '_CRT_SECURE_NO_WARNINGS': macro redefinition
+C:\Users\Dell\Documents\!!!\BME\PROG2\NagyHF\NagyBozsoNagyHF\NagyBozsoNagyHF\string5.cpp(2,1): message : '_CRT_SECURE_NO_WARNINGS' previously declared on the command line
+  Generating Code...
+  NagyBozsoNagyHF.vcxproj -> C:\Users\Dell\Documents\!!!\BME\PROG2\NagyHF\NagyBozsoNagyHF\x64\Debug\NagyBozsoNagyHF.exe

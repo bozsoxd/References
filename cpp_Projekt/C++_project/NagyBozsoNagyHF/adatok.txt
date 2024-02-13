@@ -1,0 +1,3 @@
+KEZI,Kezinev,9,400000
+FOCI,Focinev,20,Joska,Pista
+KOSAR,Kosarnev,12,30
