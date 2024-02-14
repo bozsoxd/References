@@ -1,0 +1,1 @@
+Ez egy Pythonban írodott döntési fa megoldás, amely a mestreséges intelligencia alapjait képzi.

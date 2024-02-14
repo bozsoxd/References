@@ -1,0 +1,2 @@
+A következő dokumnetumban egy komoly féléves projekt leírása található meg, mely során az agyi bevérzés
+detektálásának segítsége a cél, és amelyel a továbbiakban még komolyabb eredményeket szeretnénk elérni.
