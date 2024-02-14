@@ -1,1 +1,0 @@
-Ez két c++ nyelven íródott OpenGL projektet tartalmaz. Az első egy hiperbólikus geometrián játszódó egyszerű játék, míg a második egy sugárkövetéssel megvalósuló szoba.
