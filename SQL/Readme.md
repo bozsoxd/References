@@ -1,1 +1,0 @@
-Ezen projektben az SQL tudásomat szeretném bemutatni, bonyolultabb lekérdezéseken és adatmódosításokon keresztül.
