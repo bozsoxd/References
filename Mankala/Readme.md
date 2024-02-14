@@ -1,1 +1,0 @@
-Ez egy Java nyelven készült Mankala társasjáték, melynek grafikus megjelenítéséért a Swing könyvtár felel.
