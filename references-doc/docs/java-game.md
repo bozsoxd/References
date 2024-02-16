@@ -10,7 +10,7 @@ Első körben egy vázat készítünk el, amely a készülő program alapvető k
 Ezután egy már játszható, de még nem teljes változat készül el.
 Végül a grafikus megjelenítés és a teljes játék valósul meg.
 
-## Use-Case
+## Use-Case Diagram
 
 ![Use-Case diagram](../static/img/java-pvp-use-case.jpg)
 
@@ -27,7 +27,22 @@ Végül a grafikus megjelenítés és a teljes játék valósul meg.
 `java Main` paranccsal tudjuk futtatni a kódot, abban a mappában, ahol fordítottuk a
 kódot.
 
-## Folders
+## Screenshots
+
+### Main screen
+![Menu](../static/img/java-game-menu.png)
+:::info
+Megadhatjuk a kezdőképernyőn a csapatok játékosainak számát.
+:::
+
+### Game
+![Game](../static/img/java-game.png)
+:::info
+Az aktuális játékost piros négyzet jelöli.  
+Jobb oldalon láthatók az aktuálisan végrehajtható akciók és a játékállás.
+:::
+
+## Projects Content
 
 |Folder(s)/File(s)|about|
 |-|-|

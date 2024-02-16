@@ -1,411 +1,559 @@
-//=============================================================================================
-// Mintaprogram: Zöld háromszög. Ervenyes 2019. osztol.
-//
-// A beadott program csak ebben a fajlban lehet, a fajl 1 byte-os ASCII karaktereket tartalmazhat, BOM kihuzando.
-// Tilos:
-// - mast "beincludolni", illetve mas konyvtarat hasznalni
-// - faljmuveleteket vegezni a printf-et kiveve
-// - Mashonnan atvett programresszleteket forrasmegjeloles nelkul felhasznalni es
-// - felesleges programsorokat a beadott programban hagyni!!!!!!! 
-// - felesleges kommenteket a beadott programba irni a forrasmegjelolest kommentjeit kiveve
-// ---------------------------------------------------------------------------------------------
-// A feladatot ANSI C++ nyelvu forditoprogrammal ellenorizzuk, a Visual Studio-hoz kepesti elteresekrol
-// es a leggyakoribb hibakrol (pl. ideiglenes objektumot nem lehet referencia tipusnak ertekul adni)
-// a hazibeado portal ad egy osszefoglalot.
-// ---------------------------------------------------------------------------------------------
-// A feladatmegoldasokban csak olyan OpenGL fuggvenyek hasznalhatok, amelyek az oran a feladatkiadasig elhangzottak 
-// A keretben nem szereplo GLUT fuggvenyek tiltottak.
-//
-// NYILATKOZAT
-// ---------------------------------------------------------------------------------------------
-// Nev    : Nagy Bozsó Zsombor
-// Neptun : RIPKBY
-// ---------------------------------------------------------------------------------------------
-// ezennel kijelentem, hogy a feladatot magam keszitettem, es ha barmilyen segitseget igenybe vettem vagy
-// mas szellemi termeket felhasznaltam, akkor a forrast es az atvett reszt kommentekben egyertelmuen jeloltem.
-// A forrasmegjeloles kotelme vonatkozik az eloadas foliakat es a targy oktatoi, illetve a
-// grafhazi doktor tanacsait kiveve barmilyen csatornan (szoban, irasban, Interneten, stb.) erkezo minden egyeb
-// informaciora (keplet, program, algoritmus, stb.). Kijelentem, hogy a forrasmegjelolessel atvett reszeket is ertem,
-// azok helyessegere matematikai bizonyitast tudok adni. Tisztaban vagyok azzal, hogy az atvett reszek nem szamitanak
-// a sajat kontribucioba, igy a feladat elfogadasarol a tobbi resz mennyisege es minosege alapjan szuletik dontes.
-// Tudomasul veszem, hogy a forrasmegjeloles kotelmenek megsertese eseten a hazifeladatra adhato pontokat
-// negativ elojellel szamoljak el es ezzel parhuzamosan eljaras is indul velem szemben.
-//=============================================================================================
 #include "framework.h"
 
-#include <math.h>
-#include <stdlib.h>
-
-#if defined(__APPLE__)
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#include <GLUT/glut.h>
-#else
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
-#include <windows.h>
-#endif
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <GL/glut.h>
-#endif
-
-#ifndef M_PI
-#define M_PI 3.14159265359
-#endif
 
 
-
-struct Vector {
-    union { float x, r; }; // x és r néven is lehessen hivatkozni erre a tagra.
-    union { float y, g; };
-    union { float z, b; };
-
-    Vector(float v = 0) : x(v), y(v), z(v) { }
-    Vector(float x, float y, float z) : x(x), y(y), z(z) { }
-    Vector operator+(const Vector& v) const { return Vector(x + v.x, y + v.y, z + v.z); }
-    Vector operator-(const Vector& v) const { return Vector(x - v.x, y - v.y, z - v.z); }
-    Vector operator*(const Vector& v) const { return Vector(x * v.x, y * v.y, z * v.z); }
-    Vector operator/(const Vector& v) const { return Vector(x / v.x, y / v.y, z / v.z); }
-    friend Vector operator+(float f, const Vector& v) { return v + f; }
-    friend Vector operator-(float f, const Vector& v) { return Vector(f) - v; }
-    friend Vector operator*(float f, const Vector& v) { return v * f; }
-    friend Vector operator/(float f, const Vector& v) { return Vector(f) / v; }
-    Vector& operator+=(const Vector& v) { x += v.x, y += v.y, z += v.z; return *this; }
-    Vector& operator-=(const Vector& v) { x -= v.x, y -= v.y, z -= v.z; return *this; }
-    Vector& operator*=(const Vector& v) { x *= v.x, y *= v.y, z *= v.z; return *this; }
-    Vector& operator/=(const Vector& v) { x /= v.x, y /= v.y, z /= v.z; return *this; }
-    Vector operator-() const { return Vector(-x, -y, -z); }
-    float dot(const Vector& v) const { return x * v.x + y * v.y + z * v.z; }
-    friend float dot(const Vector& lhs, const Vector& rhs) { return lhs.dot(rhs); }
-    Vector cross(const Vector& v) const { return Vector(y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x); }
-    friend Vector cross(const Vector& lhs, const Vector& rhs) { return lhs.cross(rhs); }
-    float length() const { return sqrt(x * x + y * y + z * z); }
-    Vector normalize() const { float l = length(); if (l > 1e-3) { return (*this / l); } else { return Vector(); } }
-    bool isNull() const { return length() < 1e-3; }
-    Vector saturate() const { return Vector(max(min(x, 1.0f), 0.0f), max(min(y, 1.0f), 0.0f), max(min(z, 1.0f), 0.0f)); }
+struct Hit {
+	float t;
+	vec3 position, normal;
+	Hit() { t = -1; }
 };
-
-typedef Vector Color;
-
-struct Screen {
-    static const int width = 600;
-    static const int height = 600;
-    static Color image[width * height];
-    static void Draw() {
-        glDrawPixels(width, height, GL_RGB, GL_FLOAT, image);
-    }
-    static Color& Pixel(size_t x, size_t y) {
-        return image[y * width + x];
-    }
-};
-Color Screen::image[width * height]; // A statikus adattagat out-of-line példányosítani kell (kivéve az inteket és enumokat).
 
 struct Ray {
-    Vector origin, direction;
+	vec3 start, dir;
+	Ray(vec3 _start, vec3 _dir) { start = _start; dir = normalize(_dir); }
 };
 
-struct Intersection {
-    Vector pos, normal;
-    bool is_valid;
-    Intersection(Vector pos = Vector(), Vector normal = Vector(), bool is_valid = false)
-        : pos(pos), normal(normal), is_valid(is_valid) { }
+class Intersectable {
+protected:
+public:
+	virtual Hit intersect(const Ray& ray) = 0;
+};
+const float epsilon = 0.0001f;
+const float epsilonBig = 0.01f;
+
+
+
+
+struct Cube : public Intersectable {
+	Cube() {}
+
+	std::vector<vec3> vertexes{
+		vec3(0.0f, 0.0f, 0.0f),
+		vec3(0.0f, 0.0f, 1.0f),
+		vec3(0.0f, 1.0f, 0.0f),
+		vec3(0.0f, 1.0f, 1.0f),
+		vec3(1.0f, 0.0f, 0.0f),
+		vec3(1.0f, 0.0f, 1.0f),
+		vec3(1.f, 1.0f, 0.0f),
+		vec3(1.0f, 1.0f, 1.0f)
+	};
+
+
+
+	std::vector<vec3> faxceIndexes{
+		vec3(1,7,5),
+		vec3(1,3,7),
+		vec3(1,4,3),
+		vec3(1,2,4),
+		vec3(3,8,7),
+		vec3(3,4,8),
+		vec3(5,7,8),
+		vec3(5,8,6),
+		vec3(1,5,6),
+		vec3(1,6,2),
+		vec3(2,6,8),
+		vec3(2,8,4)
+	};
+
+
+	Hit intersect(const Ray& ray) {
+		Hit hit;
+		
+		for (int i = 0; i < 12; i++) {
+			vec3 r1 = vertexes[faxceIndexes[i].x - 1];
+			vec3 r2 = vertexes[faxceIndexes[i].y - 1];
+			vec3 r3 = vertexes[faxceIndexes[i].z - 1];
+			
+			vec3 n = cross(r2 - r1, r3 - r1);
+			
+			float t = dot((r1 - ray.start), n) / dot(ray.dir, n);
+			if (t < 0.01f) continue;
+
+			vec3 hitPoint = ray.start + (ray.dir * t);
+
+			float intersect1 = dot(cross(r2 - r1, hitPoint - r1), n);
+			float intersect2 = dot(cross(r3 - r2, hitPoint - r2), n);
+			float intersect3 = dot(cross(r1 - r3, hitPoint - r3), n);
+			if (intersect1 > 0 && intersect2 > 0 && intersect3 > 0 && dot(ray.dir, normalize(n)) > 0.0f) {
+				hit.normal = normalize(n);
+				hit.position = hitPoint;
+				hit.t = t;
+			}
+
+		}
+		return hit;
+	}
+
+
+
 };
 
-struct Light {
-    enum LightType { Ambient, Directional } type;
-    Vector pos, dir;
-    Color color;
+
+
+struct Icosahedron : public Intersectable {
+	Icosahedron() {}
+	float div = 5.0f;
+	std::vector<vec3> vertexes{
+		vec3(0.0f, -0.525731f, 0.850651f),
+		vec3(0.850651f, 0.0f, 0.525731f),
+		vec3(0.850651f, 0.0f, -0.525731f),
+		vec3(-0.850651f, 0.0f, -0.525731f),
+		vec3(-0.850651f, 0.0f, 0.525731f),
+		vec3(-0.525731f, 0.850651f, 0.0f),
+		vec3(0.525731f, 0.850651f, 0.0f),
+		vec3(0.525731f, -0.850651f, 0.0f),
+		vec3(-0.525731f, -0.850651f, 0.0f),
+		vec3(0.0f, -0.525731f, -0.850651f),
+		vec3(0.0f, 0.525731f, -0.850651f),
+		vec3(0.0f, 0.525731f, 0.850651f)
+	};
+
+
+
+	std::vector<vec3> faxceIndexes{
+		vec3(2,3,7),
+		vec3(2,8,3),
+		vec3(4,5,6),
+		vec3(5,4,9),
+		vec3(7,6,12),
+		vec3(6,7,11),
+		vec3(10,11,3),
+		vec3(11,10,4),
+		vec3(8,9,10),
+		vec3(9,8,1),
+		vec3(12,1,2),
+		vec3(1,12,5),
+		vec3(7,3,11),
+		vec3(2,7,12),
+		vec3(4,6,11),
+		vec3(6,5,12),
+		vec3(3,8,10),
+		vec3(8,2,1),
+		vec3(4,10,9),
+		vec3(5,9,1)
+	};
+
+
+	Hit intersect(const Ray& ray) {
+		Hit hit;
+		float back = 0;
+
+		for (int i = 0; i < 20; i++) {
+
+			vec3 r1 = vertexes[faxceIndexes[i].x - 1] * 0.2f + vec3(0.8f, 0.2f, 0.5f);
+			vec3 r2 = vertexes[faxceIndexes[i].y - 1] * 0.2f + vec3(0.8f, 0.2f, 0.5f);
+			vec3 r3 = vertexes[faxceIndexes[i].z - 1] * 0.2f + vec3(0.8f, 0.2f, 0.5f);
+
+
+			vec3 n = cross(r2 - r1, r3 - r1);
+			float t = dot((r1 - ray.start), n) / dot(ray.dir, n);
+			if (t < 0.01f) continue;
+
+
+
+			vec3 hitPoint = ray.start + (ray.dir * t);
+
+			float intersect1 = dot(cross(r2 - r1, hitPoint - r1), n);
+			float intersect2 = dot(cross(r3 - r2, hitPoint - r2), n);
+			float intersect3 = dot(cross(r1 - r3, hitPoint - r3), n);
+
+			if (t > back && intersect1 > 0 && intersect2 > 0 && intersect3 > 0) {
+				back = t;
+				hit.t = t;
+				hit.normal = normalize(n);
+				hit.position = hitPoint;
+			}
+
+		}
+
+		return hit;
+	}
+
+
+
 };
 
-struct Material {
-    virtual ~Material() { }
-    virtual Color getColor(Intersection, const Light[], size_t) = 0;
+
+struct Diamond : public Intersectable {
+	Diamond() {}
+	float div = 5.0f;
+	std::vector<vec3> vertexes{
+		vec3(1, 0 ,0 ),
+		vec3(0,-1 ,0 ),
+		vec3(-1, 0 ,0 ),
+		vec3(0, 1 ,0 ),
+		vec3(0, 0 ,1 ),
+		vec3(0, 0 ,-1 )
+
+	};
+
+
+	std::vector<vec3> faxceIndexes{
+		vec3(2,1,5),
+		vec3(3,2,5),
+		vec3(4,3,5),
+		vec3(1,4,5),
+		vec3(1,2,6),
+		vec3(2,3,6),
+		vec3(3,4,6),
+		vec3(4,1,6)
+	};
+
+
+	
+		Hit intersect(const Ray& ray) {
+			Hit hit;
+			float back = 0;
+
+			for (int i = 0; i < 8; i++) {
+
+				vec3 r1 = vertexes[faxceIndexes[i].x - 1] * 0.2f + vec3(0.6f, 0.2f, 0.9f);
+				vec3 r2 = vertexes[faxceIndexes[i].y - 1] * 0.2f + vec3(0.6f, 0.2f, 0.9f);
+				vec3 r3 = vertexes[faxceIndexes[i].z - 1] * 0.2f + vec3(0.6f, 0.2f, 0.9f);
+
+
+
+				vec3 n = cross(r2 - r1, r3 - r1);
+				float t = dot((r1 - ray.start), n) / dot(ray.dir, n);
+				if (t < 0.01f) continue;
+
+
+
+				vec3 hitPoint = ray.start + (ray.dir * t);
+
+				float intersect1 = dot(cross(r2 - r1, hitPoint - r1), n);
+				float intersect2 = dot(cross(r3 - r2, hitPoint - r2), n);
+				float intersect3 = dot(cross(r1 - r3, hitPoint - r3), n);
+
+				if (t > back && intersect1 > 0 && intersect2 > 0 && intersect3 > 0) {
+					back = t;
+					hit.t = t;
+					if (dot(n, ray.dir) > 0) n = n * -1;
+					hit.normal = normalize(n);
+					hit.position = hitPoint;
+				}
+
+			}
+
+			return hit;
+		}
+
 };
 
-struct Object {
-    Material* mat;
-    Object(Material* m) : mat(m) { }
-    virtual ~Object() { }
-    virtual Intersection intersectRay(Ray) = 0;
+
+
+
+struct Cone : public Intersectable {
+	float alpha;	
+	float h;	
+	vec3 cent;		
+	vec3 v;		
+	vec3 color;
+
+	Cone(vec3 center, float _alpha, vec3 irany, float height, vec3 col) {
+		alpha = _alpha;
+		h = height;
+		cent = center;
+		v = normalize(irany);
+		color = col;
+	}
+
+	Hit intersect(const Ray& ray) {
+		Hit hit;
+		vec3 co = ray.start - cent;
+
+		float a = dot(ray.dir, v) * dot(ray.dir, v) - cosf(alpha) * cosf(alpha);
+		float b = 2. * (dot(ray.dir, v) * dot(co, v) - dot(ray.dir, co) * cosf(alpha) * cosf(alpha));
+		float c = dot(co, v) * dot(co, v) - dot(co, co) * cosf(alpha) * cosf(alpha);
+
+
+		float det = b * b - 4. * a * c;
+		if (det < 0.) {
+			hit.t = -1;
+			return hit;
+		}
+		det = sqrt(det);
+		float t1 = (-b + det) / (2. * a);
+		float t2 = (-b - det) / (2. * a);
+		if (t1 <= 0) {
+			hit.t = -1;
+			return hit;
+		}
+		float t;
+		vec3 p1 = ray.start + ray.dir * t1;
+		vec3 p2 = ray.start + ray.dir * t2;
+		float x1 = dot(p1 - cent, v);
+		float x2 = dot(p2 - cent, v);
+		if (x1 >= 0 && x1 <= h) {
+			if (x2 < 0 || x2 > h) {
+				t = t1;
+			}
+			else {
+				t = (t2 < t1) ? t2 : t1;
+			}
+		}
+		else if (x2 >= 0 && x2 <= h) {
+			t = t2;
+		}
+		else {
+			hit.t = -1;
+			return hit;
+		}
+		vec3 hitPoint = ray.start +  (ray.dir *t);
+		
+		vec3 n = normalize(2*dot(hit.position-cent, v) * v - 2*(hit.position - cent)* cosf(alpha)*cosf(alpha));
+		hit.normal = n;
+		hit.t = t;
+		hit.position = hitPoint;
+		return hit;
+	}
+
+	
+
+	void setCenter(vec3 newC, vec3 n) {
+		cent = newC + n * epsilonBig;
+		v = n;
+	}
+	
 };
 
-struct Scene {
-    static const size_t max_obj_num = 100;
-    size_t obj_num;
-    Object* objs[max_obj_num];
 
-    void AddObject(Object* o) {
-        objs[obj_num++] = o;
-    }
-
-    ~Scene() {
-        for (int i = 0; i != obj_num; ++i) {
-            delete objs[i];
-        }
-    }
-
-    static const size_t max_lgt_num = 10;
-    size_t lgt_num;
-    Light lgts[max_obj_num];
-
-    void AddLight(const Light& l) {
-        lgts[lgt_num++] = l;
-    }
-
-    static const Vector env_color;
-
-    Scene() : obj_num(0) { }
-
-    Intersection getClosestIntersection(Ray r, int* index = NULL) const {
-        Intersection closest_intersection;
-        float closest_intersection_dist;
-        int closest_index = -1;
-
-        for (int i = 0; i < obj_num; ++i) {
-            Intersection inter = objs[i]->intersectRay(r);
-            if (!inter.is_valid)
-                continue;
-            float dist = (inter.pos - r.origin).length();
-            if (closest_index == -1 || dist < closest_intersection_dist) {
-                closest_intersection = inter;
-                closest_intersection_dist = dist;
-                closest_index = i;
-            }
-        }
-
-        if (index) {
-            *index = closest_index;
-        }
-        return closest_intersection;
-    }
-
-    Color shootRay(Ray r) const {
-        int index;
-        Intersection inter = getClosestIntersection(r, &index);
-
-        if (index != -1) {
-            return objs[index]->mat->getColor(inter, lgts, lgt_num);
-        }
-        else {
-            return env_color;
-        }
-    }
-} scene;
-const Vector Scene::env_color = Vector();
-
-struct Camera {
-    Vector pos, plane_pos, right, up;
-
-    Camera(float fov, const Vector& eye, const Vector& target, const Vector& plane_up)
-        : pos(eye), plane_pos(eye + (target - eye).normalize())
-    {
-        Vector fwd = (plane_pos - pos).normalize();
-        float plane_half_size = tan((fov * M_PI / 180) / 2);
-
-        right = plane_half_size * cross(fwd, plane_up).normalize();
-        up = plane_half_size * cross(right, fwd).normalize();
-    }
-
-    void takePicture() {
-        for (int x = 0; x < Screen::height; ++x)
-            for (int y = 0; y < Screen::width; ++y)
-                capturePixel(x, y);
-    }
-
-    void capturePixel(float x, float y) {
-        Vector pos_on_plane = Vector(
-            (x + 0.5f - Screen::width / 2) / (Screen::width / 2),
-            (y + 0.5f - Screen::height / 2) / (Screen::height / 2),
-            0
-        );
-
-        Vector plane_intersection = plane_pos + pos_on_plane.x * right + pos_on_plane.y * up;
-
-        Ray r = { pos, (plane_intersection - pos).normalize() };
-        Screen::Pixel(x, y) = scene.shootRay(r);
-    }
-} camera(60, Vector(-3, 2, -2), Vector(), Vector(0, 1, 0));
-
-// Idáig egy általános raytracert definiáltam. Innentõl jönnek a konkrétumok.
-
-struct DiffuseMaterial : public Material {
-    Color own_color;
-
-    DiffuseMaterial(const Color& color) : own_color(color) { }
-
-    Color getColor(Intersection inter, const Light* lgts, size_t lgt_num) {
-        Color accum_color;
-
-        for (int i = 0; i < lgt_num; ++i) {
-            const Light& light = lgts[i];
-            switch (light.type) {
-            case Light::Ambient: {
-                accum_color += light.color * own_color;
-            } break;
-            case Light::Directional: {
-                float intensity = max(dot(inter.normal, light.dir.normalize()), 0.0f);
-                accum_color += intensity * light.color * own_color;
-            } break;
-            }
-        }
-
-        return accum_color.saturate();
-    }
+class Camera {
+	vec3 eye, lookat, right, up;
+public:
+	void set(vec3 _eye, vec3 _lookat, vec3 vup, float fov) {
+		eye = _eye;
+		lookat = _lookat;
+		vec3 w = eye - lookat;
+		float focus = length(w);
+		right = normalize(cross(vup, w)) * focus * tanf(fov / 2);
+		up = normalize(cross(w, right)) * focus * tanf(fov / 2);
+	}
+	Ray getRay(int X, int Y) {
+		vec3 dir = lookat + right * (2.0f * (X + 0.5f) / windowWidth - 1) + up * (2.0f * (Y + 0.5f) / windowHeight - 1) - eye;
+		return Ray(eye, dir);
+	}
 };
 
-DiffuseMaterial blue(Color(0.0f, 0.4f, 1.0f));
 
 
-struct Triangle : public Object {
-    Vector a, b, c, normal;
 
-    // Az óra járásával ellentétes (CCW) körüljárási irányt feltételez ez a kód.
-    // A köröljárási irányból döntjük el a normálvektor "elõjelét".
-    Triangle(Material* mat, const Vector& a, const Vector& b, const Vector& c)
-        : Object(mat), a(a), b(b), c(c) {
-        Vector ab = b - a;
-        Vector ac = c - a;
-        normal = cross(ab.normalize(), ac.normalize()).normalize();
-    }
+Cone* cone1 = new Cone(vec3(0.6f, 0.8f, 0.5f), 20 * M_PI / 180, vec3(0, -1, 0), 0.2f, vec3(1., 0., 0.));
+Cone* cone2 = new Cone(vec3(0.6f, 0.8f, 0.9f), 20 * M_PI / 180, vec3(0, -1, 0.0f), 0.2f, vec3(0., 1., 0.));
+Cone* cone3 = new Cone(vec3(0.7f, 0.8f, 0.4f), 20 * M_PI / 180, vec3(0, -1, 0.0f), 0.2f, vec3(0., 0., 1.));
 
-    // Ennek a függvénynek a megértéséhez rajzolj magadnak egyszerû ábrákat!
-    Intersection intersectRay(Ray r) {
-        // Elõször számoljuk ki, hogy melyen mekkora távot 
-        // tesz meg a sugár, míg eléri a háromszög síkját
-        // A számoláshoz tudnuk kell hogy ha egy 'v' vektort 
-        // skaliráisan szorzunk egy egységvektorral, akkor
-        // az eredmény a 'v'-nek az egységvektorra vetített 
-        // hossza lesz. Ezt felhasználva, ha a sugár kiindulási 
-        // pontjából a sík egy pontjba mutató vektort levetítjük 
-        // a sík normál vektorára, akkor megkapjuk, hogy milyen 
-        // távol van a sugár kiindulási pontja a síktól. Továbbá,
-        // ha az a sugár irányát vetítjük a normálvektorra, akkor meg
-        // megtudjuk, hogy az milyen gyorsan halad a sík fele.
-        // Innen a már csak a t = s / v képletet kell csak használnunk.
-        float ray_travel_dist = dot(a - r.origin, normal) / dot(r.direction, normal);
+float rnd() { return (float)rand() / RAND_MAX; }
 
-        // Ha a háromszög az ellenkezõ irányba van, mint 
-        // amerre a sugár megy, vagy az elõzõ képletben 
-        // nullával osztottunk, akkor nincs metszéspontjuk
-        if (ray_travel_dist < 0 || isnan(ray_travel_dist))
-            return Intersection();
 
-        // Számoljuk ki, hogy a sugár hol metszi a sugár síkját.
-        Vector plane_intersection = r.origin + ray_travel_dist * r.direction;
+class Scene {
+	std::vector<Intersectable*> objects;
+	std::vector<Cone*> cones;
+	Camera camera;
+	vec3 La;
+public:
+	void build() {
+		vec3 eye = vec3(3., 0.5f, 2.), vup = vec3(0, 1, 0), lookat = vec3(0, 0, 0);
+		float fov = 45 * M_PI / 180;
+		camera.set(eye, lookat, vup, fov);
+		La = vec3(0., 0., 0.);
+		
+		
 
-        /* Most már csak el kell döntenünk, hogy ez a pont a háromszög
-           belsejében van-e. Erre két lehetõség van:
+		
+		objects.push_back(new Cube());
+		objects.push_back(new Icosahedron());
+		objects.push_back(new Diamond());
+		objects.push_back(cone1);
+		cones.push_back(cone1);
+		objects.push_back(cone2);
+		cones.push_back(cone2);
+		objects.push_back(cone3);
+		cones.push_back(cone3);
+		 
+		
+	}
 
-           - A háromszög összes élére megnézzük, hogy a pontot a hároszög
-           egy megfelelõ pontjával összekötve a kapott szakasz, és a háromszög
-           élének a vektoriális szorzata a normál irányába mutat-e.
-           Pl:
+	void render(std::vector<vec4>& image) {
+		for (int Y = 0; Y < windowHeight; Y++) {
+#pragma omp parallel for
+			for (int X = 0; X < windowWidth; X++) {
+				vec3 color = trace(camera.getRay(X, Y));
+				image[Y * windowWidth + X] = vec4(color.x, color.y, color.z, 1);
+			}
+		}
+	}
 
-                     a
-                   / |
-                  /  |
-                 /   |
-                /  x |  y
-               /     |
-              b------c
+	Hit firstIntersect(Ray ray) {
+		Hit bestHit;
+		for (Intersectable* object : objects) {
+			Hit hit = object->intersect(ray); //  hit.t < 0 if no intersection
+			if (hit.t > 0 && (bestHit.t < 0 || hit.t < bestHit.t))  bestHit = hit;
+		}
+		if (dot(ray.dir, bestHit.normal) > 0) bestHit.normal = bestHit.normal * (-1);
+		return bestHit;
+	}
+	
+	
 
-           Nézzük meg az x és y pontra ezt az algoritmust.
-           A cross(ab, ax), a cross(bc, bx), és a cross(ca, cx) és kifele mutat a
-           képernyõbõl, ugyan abba az irányba mint a normál vektor. Ezt amúgy a
-           dot(cross(ab, ax), normal) >= 0 összefüggéssel egyszerû ellenõrizni.
-           Az algoritmus alapján az x a háromszög belsejében van.
+	
+	
+	
+	vec3 trace(Ray ray, int depth = 0) {
+		Hit hit = firstIntersect(ray);
+		float grey = 0.2 * (1 + dot(hit.normal, (- 1) * ray.dir));
+		if (hit.t < 0) return vec3(0, 0, 0);
+		vec3 outRadiance = vec3(grey, grey, grey);
+		for (Cone* cone : cones) {
+			float dist = length(cone->cent - hit.position);
 
-           Míg az y esetében a cross(ca, cy) befele mutat, a normállal ellenkezõ irányba,
-           tehát a dot(cross(ca, cy), normal) < 0 ami az algoritmus szerint azt jelenti,
-           hogy az y pont a háromszögön kívül van.
+			vec3 posl = hit.position - cone->cent + cone->v * epsilon*3;
+			Ray sray(hit.position + hit.normal * epsilon*2, normalize(cone->cent - cone->v * epsilon * 2 - hit.position));
+			Hit between = firstIntersect(sray);
+			if (dot(normalize(posl), cone->v) > cosf(cone->alpha) && (between.t < 0 || between.t >= dist)) {
+				outRadiance = outRadiance + cone->color - 0.5f * dist * cone->color;
+			}
+		}
+		return outRadiance;
+	}
 
-           - A mádik lehetõség a barycentrikus koordinátáknak azt a tulajdonságát használja
-           ki, hogy azok a háromszög belsejében lévõ pontokra kivétel nélkül nem negatívak,
-           míg a háromszögön kívül lévõ pontokra legalább egy koordináta negatív.
-           Ennek a megoldásnak a használatához ki kell jelölnünk két tetszõleges, de egymásra
-           merõleges vektort a síkon, ezekre le kell vetíteninünk a háromszög pontjait, és
-           kérdéses pontot, és az így kapott koordinátákra alakzmanunk kell egy a wikipediáról
-           egyszerûen kimásolható képletet:
-           http://en.wikipedia.org/wiki/Barycentric_coordinate_system#Converting_to_barycentric_coordinates
+	Cone* getClosestCone(int X, int Y) {
+		
+		Ray RaytoCone = camera.getRay(X, windowHeight-Y);
+		Hit hit = firstIntersect(RaytoCone);
+		if (hit.t < 0) return NULL;
+		float minLength = 1000000.;
+		Cone* closest;
+		for (Cone* cone : cones) {
+			if (length(cone->cent - hit.position) < minLength) {
+				closest = cone;
+				minLength = length(cone->cent - hit.position);
+			}
+		}
+		return closest;
+	}
 
-           Én az elsõ lehetõséget implementálom. */
+	void setConePos(Cone* cone, int X, int Y) {
+		Ray toCone = camera.getRay(X, windowHeight-Y);
+		Hit hit = firstIntersect(toCone);
+		cone->setCenter(hit.position, hit.normal);
+		
+	}
 
-        const Vector& x = plane_intersection;
-
-        Vector ab = b - a;
-        Vector ax = x - a;
-
-        Vector bc = c - b;
-        Vector bx = x - b;
-
-        Vector ca = a - c;
-        Vector cx = x - c;
-
-        if (dot(cross(ab, ax), normal) >= 0)
-            if (dot(cross(bc, bx), normal) >= 0)
-                if (dot(cross(ca, cx), normal) >= 0)
-                    return Intersection(x, normal, true);
-
-        return Intersection();
-    }
 };
 
+GPUProgram gpuProgram; // vertex and fragment shaders
+Scene scene;
+
+// vertex shader in GLSL
+const char* vertexSource = R"(
+	#version 330
+    precision highp float;
+
+	layout(location = 0) in vec2 cVertexPosition;	// Attrib Array 0
+	out vec2 texcoord;
+
+	void main() {
+		texcoord = (cVertexPosition + vec2(1, 1))/2;							// -1,1 to 0,1
+		gl_Position = vec4(cVertexPosition.x, cVertexPosition.y, 0, 1); 		// transform to clipping space
+	}
+)";
+
+// fragment shader in GLSL
+const char* fragmentSource = R"(
+	#version 330
+    precision highp float;
+
+	uniform sampler2D textureUnit;
+	in  vec2 texcoord;			// interpolated texture coordinates
+	out vec4 fragmentColor;		// output that goes to the raster memory as told by glBindFragDataLocation
+
+	void main() {
+		fragmentColor = texture(textureUnit, texcoord); 
+	}
+)";
+
+class FullScreenTexturedQuad {
+	unsigned int vao;	// vertex array object id and texture id
+	Texture texture;
+public:
+	FullScreenTexturedQuad(int windowWidth, int windowHeight, std::vector<vec4>& image)
+		: texture(windowWidth, windowHeight, image)
+	{
+		glGenVertexArrays(1, &vao);	// create 1 vertex array object
+		glBindVertexArray(vao);		// make it active
+
+		unsigned int vbo;		// vertex buffer objects
+		glGenBuffers(1, &vbo);	// Generate 1 vertex buffer objects
+
+		// vertex coordinates: vbo0 -> Attrib Array 0 -> vertexPosition of the vertex shader
+		glBindBuffer(GL_ARRAY_BUFFER, vbo); // make it active, it is an array
+		float vertexCoords[] = { -1, -1,  1, -1,  1, 1,  -1, 1 };	// two triangles forming a quad
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexCoords), vertexCoords, GL_STATIC_DRAW);	   // copy to that part of the memory which is not modified 
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);     // stride and offset: it is tightly packed
+	}
+
+	void Draw() {
+		glBindVertexArray(vao);	// make the vao and its vbos active playing the role of the data source
+		gpuProgram.setUniform(texture, "textureUnit");
+		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);	// draw two triangles forming a quad
+	}
+};
+
+FullScreenTexturedQuad* fullScreenTexturedQuad;
+std::vector<vec4> image(windowWidth* windowHeight);
+
+// Initialization, create an OpenGL context
 void onInitialization() {
-    Light amb = { Light::Ambient, Vector(), Vector(), Color(0.2f, 0.2f, 0.2f) };
-    Light dir = { Light::Directional, Vector(), Vector(-2, 4, -1), Color(1.0f, 1.0f, 1.0f) };
-    scene.AddLight(amb);
-    scene.AddLight(dir);
+	glViewport(0, 0, windowWidth, windowHeight);
+	scene.build();
 
-    float s = 0.5f;
+	long timeStart = glutGet(GLUT_ELAPSED_TIME);
+	scene.render(image);
+	long timeEnd = glutGet(GLUT_ELAPSED_TIME);
+	//printf("Rendering time: %d milliseconds\n", (timeEnd - timeStart));
 
-    // Front face
-    scene.AddObject(new Triangle(&blue, Vector(+s, -s, -s), Vector(-s, -s, -s), Vector(-s, +s, -s)));
-    scene.AddObject(new Triangle(&blue, Vector(-s, +s, -s), Vector(+s, +s, -s), Vector(+s, -s, -s)));
+	// copy image to GPU as a texture
+	fullScreenTexturedQuad = new FullScreenTexturedQuad(windowWidth, windowHeight, image);
 
-    // Back face
-    scene.AddObject(new Triangle(&blue, Vector(+s, -s, +s), Vector(-s, -s, +s), Vector(-s, +s, +s)));
-    scene.AddObject(new Triangle(&blue, Vector(-s, +s, +s), Vector(+s, +s, +s), Vector(+s, -s, +s)));
-
-    // Right face
-    scene.AddObject(new Triangle(&blue, Vector(+s, -s, -s), Vector(+s, -s, +s), Vector(+s, +s, +s)));
-    scene.AddObject(new Triangle(&blue, Vector(+s, +s, +s), Vector(+s, +s, -s), Vector(+s, -s, -s)));
-
-    // Left face
-    scene.AddObject(new Triangle(&blue, Vector(-s, -s, -s), Vector(-s, -s, +s), Vector(-s, +s, +s)));
-    scene.AddObject(new Triangle(&blue, Vector(-s, +s, +s), Vector(-s, +s, -s), Vector(-s, -s, -s)));
-
-    // Upper face
-    scene.AddObject(new Triangle(&blue, Vector(-s, +s, -s), Vector(-s, +s, +s), Vector(+s, +s, +s)));
-    scene.AddObject(new Triangle(&blue, Vector(+s, +s, -s), Vector(-s, +s, -s), Vector(+s, +s, +s)));
-
-    // Lower face
-    scene.AddObject(new Triangle(&blue, Vector(-s, -s, +s), Vector(-s, -s, -s), Vector(+s, -s, +s)));
-    scene.AddObject(new Triangle(&blue, Vector(+s, -s, -s), Vector(+s, -s, +s), Vector(-s, -s, -s)));
-
-    camera.takePicture();
+	// create program for the GPU
+	gpuProgram.create(vertexSource, fragmentSource, "fragmentColor");
 }
 
+// Window has become invalid: Redraw
 void onDisplay() {
-    glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the screen
+	scene.render(image);
+	fullScreenTexturedQuad = new FullScreenTexturedQuad(windowWidth, windowHeight, image);
 
-    Screen::Draw();
-
-    glutSwapBuffers();
+	fullScreenTexturedQuad->Draw();
+	glutSwapBuffers();									// exchange the two buffers
+	//printf("avg color: %f", sum / count);
 }
 
+// Key of ASCII code pressed
+void onKeyboard(unsigned char key, int pX, int pY) {
+}
+
+// Key of ASCII code released
+void onKeyboardUp(unsigned char key, int pX, int pY) {
+
+}
+
+// Mouse click event
+void onMouse(int button, int state, int pX, int pY) {
+	Cone* closest = scene.getClosestCone(pX, pY);
+	if (closest != NULL) {
+		scene.setConePos(closest, pX, pY);
+		glutPostRedisplay();
+	}
+	
+}
+
+// Move mouse with key pressed
+void onMouseMotion(int pX, int pY) {
+}
+
+// Idle event indicating that some time elapsed: do animation here
 void onIdle() {
-    static bool first_call = true;
-    if (first_call) {
-        glutPostRedisplay();
-        first_call = false;
-    }
 }
-
-void onKeyboard(unsigned char key, int, int) {}
-
-void onKeyboardUp(unsigned char key, int, int) {}
-
-void onMouse(int, int, int, int) {}
-
-void onMouseMotion(int, int) {}
-

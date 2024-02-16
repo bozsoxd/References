@@ -1,5 +1,5 @@
 ---
-title: Android Workout Tracker Project
+title: Android Workout Tracker
 sidebar_position: 3
 ---
 
@@ -18,3 +18,20 @@ Az alkalmazás elindításakor egy főképernyő fogad, amelynek két része van
 2. fragmentek
 3. RecyclerView
 4. Perzisztens adattárolás: Room, Shared Preferencies
+
+## Screenshots
+
+### Főképernyő
+![Main screen](../static/img/android-app-1.png)
+
+### Napi edzés felvitele
+![Daily screen](../static/img/android-app-2.png)
+:::info
+A napi edzésnél megadható a gyakorlat neve, az ismétlések száma és a használt súly.
+:::
+:::warning fontos
+Az edzésmunkát settenként kell felvinni!
+:::
+
+### Felhasználói profil
+![Profile screen](../static/img/android-app-3.png)
