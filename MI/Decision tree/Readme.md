@@ -21,10 +21,8 @@ def get_entropy(n_cat1: int, n_cat2: int) -> float:
     entropy = - p1 * math.log2(p1) - p2 * math.log2(p2)
     return entropy
 ```
-:::note
-Az entrópia megadja az adott csomópont bizonytalanságát
-:::
 
+Az entrópia megadja az adott csomópont bizonytalanságát
 
 ```python title="Döntési fa építése"
 def build_decision_tree(features, labels):

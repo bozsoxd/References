@@ -16,19 +16,17 @@ if(maxPlayer){
                     value = newScore;
                     column = i;
                 }
-                //highlight-start
                 alpha = max(alpha, value);
                 if(alpha >= beta){
                     break;
                 }
-                //highlight-end
             }
             return new int[]{column, value};
         }
 ```
-:::note
+
 A jelölt részen látható az említett alpha/beta nyesés.
-:::
+
 ```java title="Score calcing" showLineNumbers
 private int scoreOfFour(int[] four, int playerIndex){
         int score = 0;

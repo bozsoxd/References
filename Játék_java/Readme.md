@@ -14,15 +14,15 @@ Végül a grafikus megjelenítés és a teljes játék valósul meg.
 `java Main` paranccsal tudjuk futtatni a kódot, abban a mappában, ahol fordítottuk a
 kódot.
 
-:::info
+
 Megadhatjuk a kezdőképernyőn a csapatok játékosainak számát.
-:::
+
 
 ### Game
-:::info
+
 Az aktuális játékost piros négyzet jelöli.  
 Jobb oldalon láthatók az aktuálisan végrehajtható akciók és a játékállás.
-:::
+
 
 ## Projects Content
 

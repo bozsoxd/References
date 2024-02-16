@@ -14,10 +14,9 @@ Az alkalmazás elindításakor egy főképernyő fogad, amelynek két része van
 3. RecyclerView
 4. Perzisztens adattárolás: Room, Shared Preferencies
 
-:::info
+
 A napi edzésnél megadható a gyakorlat neve, az ismétlések száma és a használt súly.
-:::
-:::warning fontos
+
 Az edzésmunkát settenként kell felvinni!
-:::
+
 

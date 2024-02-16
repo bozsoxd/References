@@ -17,13 +17,10 @@ model = Sequential([
 ])
 ```
 
-:::note
 Ez egy 6 rétegű szekvenciális modell, amely relu függvények segítségével számolja az adott neuronok súlyozását.
-:::
+
 
 ```python title="Modell tanítása"
 model.fit(X_train_normalized, y_train, epochs=100, batch_size=64, validation_split=0.2, callbacks=[early_stopping])
-```
-:::danger Important
+
 Ha a kimeneti adathalmaz elkezdene eltávolodni a validációs adathalmaztól, akkor leáll.
-:::
