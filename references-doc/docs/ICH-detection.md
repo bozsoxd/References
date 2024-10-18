@@ -5,7 +5,7 @@ sidebar_position: 2
 
 ## Description
 
-Ezen a projekten 3-an együtt dolgozva mérnöki és orvosi konzulensek segítségével kezdtünk el kitalálni és megalkotni egy olyan szoftveres megoldást, mely segítséget nyújthat az orvosoknak a sokszor nehezen észrevehető agyvérzés CT felvételen való detektálásában.
+Ez a projekt szolgál szakdolgozatomként. Orvosi konzulensek segítségével megalkotott koncepció alapján készítek egy CNN osztályzót Pytrorch segítségével, amely eldönti egy agyi CT felvétel egy szeletéről, hogy található-e benne vérzés.
 
 ## Projects Content
 
