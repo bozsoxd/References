@@ -1,0 +1,2 @@
+# Description
+Ezen komplex mélytanulásos mesterséges intelligencia projekt egy orvosi diagnosztikát támogató konvolúciós neurális hálót tartalmaz, melynek célja az koponyaűri vérzés felismerése CT felvételeken.
