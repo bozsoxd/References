@@ -1,0 +1,81 @@
+{
+	"info": {
+		"_postman_id": "d52c271e-3088-46e4-809b-a0b0c5e178ab",
+		"name": "Mitigia",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "14831541"
+	},
+	"item": [
+		{
+			"name": "AllVehicles",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "AllProjects",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/projects",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"projects"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AllkmStates",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/kmStates",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"kmStates"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "NewKmState",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"licence_plate\": \"AAA111\",\n    \"km_state\": 128\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/km",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"km"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

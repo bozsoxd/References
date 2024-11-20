@@ -1,0 +1,22 @@
+<table>
+    <thead>
+      <tr>
+        <th>Projekt ID</th>
+        <th>Rendszám</th>
+        <th>Jármű adatai</th>
+        <th>Utolsó km-óra állás</th>
+        <th>Dátum</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let vehicle of vehicles">
+        <td>{{ vehicle.prj_id }}</td>
+        <td>{{ vehicle.licence_plate }}</td>
+        <td>{{ vehicle.v_manufacturer }} {{ vehicle.v_model }} {{ vehicle.v_year }} {{ vehicle.v_type }}</td>
+        <td [style.color]="vehicle.save_date ? 'green' : 'black'">
+          {{ vehicle.km_state }}
+        </td>
+        <td>{{ vehicle.save_date| date }}</td>
+      </tr>
+    </tbody>
+  </table>
