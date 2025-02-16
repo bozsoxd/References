@@ -1,4 +1,3 @@
-## Description
+# Description
 
-Ez egy minimax algoritmus, amelynek célja a Connect4 játék megnyerése. 9 méjségig megy az algoritmus és alpha/beta nyesést használ, a jobb teljesítmény érdekében. Így a győzelmének nagyon magas esélye biztosított.
-A minimax algoritmus lényege, hogy két játékos egymás ellen játszik, és a cél a saját pontszám maximalizálása, az ellenfél pontszámának minimalizása mellett.
+This is a minimax algorithm designed to play the game of Connect Four. The algorithm searches to a depth of 9 and uses alpha-beta pruning for better performance. This ensures a very high probability of winning, as the algorithm is able to look ahead several moves and choose the best possible move. The minimax algorithm is a classic game-playing algorithm that can be used to play a variety of games, including chess, checkers, and tic-tac-toe. 1  It works by recursively exploring the game tree and choosing the move that leads to the best possible outcome for the player. Alpha-beta pruning is a technique that can be used to improve the performance of the minimax algorithm by eliminating branches of the game tree that are not worth exploring.

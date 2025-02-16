@@ -1,9 +1,11 @@
-Ez két c++ nyelven íródott OpenGL projektet tartalmaz. Az első egy hiperbólikus geometrián játszódó egyszerű játék, míg a második egy sugárkövetéssel megvalósuló szoba.
+# Description
 
-## OpenGL1
+This project contains two OpenGL projects written in C++. The first is a simple game played on a hyperbolic geometry, while the second is a room realized by ray tracing. For OpenGL, I used the freeglut and glew libraries.
 
-A projektben két kör alakú hami mozog a hiperbólikus síkon és próbálják megenni egymást. A hamik szeme mindig a másik hamira néznek.
+## Project 1
 
-## OpenGL2
+In this project, two circular "head" move on the hyperbolic plane and try to eat each other. The eyes of the "heads" always look at the other "head".
 
-A projektben 3 különböző színű kúp lámpa világítja meg a szobát, amelyek egérkattintásal áthelyezhetők.
+## Project 2
+
+In this project, two circular "head" move on the hyperbolic plane and try to eat each other. The eyes of the "heads" always look at the other "head".
